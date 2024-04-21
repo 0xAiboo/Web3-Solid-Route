@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.2 <0.9.0;
 
+import "./BigBank.sol";
 
 contract Ownable {
     address public bigBankContract;
@@ -24,7 +25,7 @@ contract Ownable {
     }
 
     function withdrawBigBank(address _to, uint256 amount) public onlyOwner {
-        (bool success, bytes memory result) = bigBankContract.delegatecall(
+        (bool success, bytes memory result) = bigBankContract.call(
             abi.encodeWithSignature("withdraw(address,uint256)", _to, amount)
         );
         require(success, "delegatecall failed");
