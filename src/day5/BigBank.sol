@@ -6,7 +6,6 @@ import "./Ownable.sol";
 contract BigBank is Bank, Ownable {
     error lessThanPayable(string);
     error notOwner(string);
-    uint256 public withdrawCount;
 
     function transferOwner(address _newO) public onlyOwner {
         if (msg.sender != owner) revert("you are not owner");
@@ -23,7 +22,6 @@ contract BigBank is Bank, Ownable {
         onlyOwner
         returns (bool)
     {
-        withdrawCount += 1;
         require(
             address(this).balance >= amount,
             "Insufficient contract balance"
@@ -32,7 +30,7 @@ contract BigBank is Bank, Ownable {
         return true;
     }
 
-    receive() external payable override greaterThanMinDeposit {
+    receive() external payable override(Bank, Ownable) greaterThanMinDeposit {
         super.depositMoney();
     }
 }

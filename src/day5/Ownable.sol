@@ -30,4 +30,6 @@ contract Ownable {
         );
         require(success, "delegatecall failed");
     }
+
+    receive() external payable virtual  {}
 }
