@@ -1,0 +1,85 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+import "./ERC20.sol";
+import "./ERC721.sol";
+
+contract NFTMarket {
+    ERC20 tokenContract;
+    ERC721 NFTContract;
+    struct listUser {
+        address owner;
+        uint256 listPrice;
+    }
+    mapping(address => mapping(uint256 => listUser)) private marketList;
+
+    function list(
+        address contractAddress,
+        uint256 tokenId,
+        uint256 listPrice
+    ) public {
+        // (bool success, bytes memory approveBytest) = contractAddress.call(
+        //     abi.encodeWithSignature(
+        //         "_isApprovedOrOwner(uint256)",
+        //         address(this),
+        //         tokenId
+        //     )
+        // );
+        // bool isApprove = abi.decode(approveBytest, (bool));
+        // require(isApprove, "Please authorize first");
+
+        // (bool transferSuccess, ) = contractAddress.call(
+        //     abi.encodeWithSignature(
+        //         "safeTransferFrom(address,address,uint)",
+        //         msg.sender,
+        //         address(this),
+        //         tokenId
+        //     )
+        // );
+        NFTContract = ERC721(contractAddress);
+        NFTContract.safeTransferFrom(msg.sender, address(this), tokenId);
+        // if (transferSuccess) {
+        marketList[contractAddress][tokenId].owner = msg.sender;
+        marketList[contractAddress][tokenId].listPrice = listPrice;
+        // return true;
+        // }
+        // return false;
+    }
+
+    function buyNFT(
+        address contractAddress,
+        uint256 tokenId,
+        address payErc20Contract
+    ) public {
+        tokenContract = ERC20(payErc20Contract);
+        NFTContract = ERC721(contractAddress);
+        uint256 price = marketList[contractAddress][tokenId].listPrice;
+        require(
+            tokenContract.allowance(msg.sender, address(this)) >= price,
+            "Insufficient authorization limit"
+        );
+        require(
+            tokenContract.balanceOf(msg.sender) >= price,
+            "Insufficient balance"
+        );
+        require(
+            tokenContract.transferFrom(
+                msg.sender,
+                marketList[contractAddress][tokenId].owner,
+                marketList[contractAddress][tokenId].listPrice
+            ),
+            "Token Transfer fail"
+        );
+        NFTContract.safeTransferFrom(address(this), msg.sender, tokenId);
+        marketList[contractAddress][tokenId].owner = address(0);
+        marketList[contractAddress][tokenId].listPrice = 0;
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
+}

@@ -50,7 +50,6 @@ contract TokenBank is Ownable {
     {
         return balances[contractAddress][msg.sender];
     }
-
     function withdraw(address contractAddress, uint256 _value)
         public
         returns (bool)

@@ -1,0 +1,19 @@
+{
+    "name": "卡卡罗特",
+    "description": "10K - 卡卡罗特（他在地球上的朋友们称他为悟空）出生于 737 纪元的贝吉塔星球上，当时正值一场大动荡。",
+    "image": "ipfs://QmfWdgLtyswxPRoxUKrH4HN32nYvP6yCkR4EdmDaCa49Ux",
+    "attributes": [
+        {
+            "trait_type": "Eyes",
+            "value": "Big"
+        },
+        {
+            "trait_type": "Mouth",
+            "value": "Surprised"
+        },
+        {
+            "trait_type": "Level",
+            "value": 3
+        }
+    ]
+}
