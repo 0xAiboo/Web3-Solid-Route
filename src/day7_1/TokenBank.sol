@@ -74,7 +74,6 @@ contract TokenBank is Ownable {
         address _to,
         uint256 _value
     ) public returns (bool) {
-        balances[msg.sender][_from] -= _value;
         balances[msg.sender][_to] += _value;
         return true;
     }
