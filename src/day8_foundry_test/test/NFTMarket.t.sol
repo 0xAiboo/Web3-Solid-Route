@@ -12,6 +12,7 @@ contract NFTMarketTest is Test {
     NFTMarket market;
     address alice = makeAddr("alice");
     address tom = makeAddr("tom");
+  
     // 运行测试前的执行代码，可用于准备测试数据
     function setUp() public {
         vm.startPrank(alice);
@@ -127,7 +128,7 @@ contract NFTMarketTest is Test {
         usdt.transfer(tom, price);
         vm.startPrank(tom);
         usdt.transferWithCallback(address(market), price, abi.encode(buyData));
-        
+
         assertEq(nft.ownerOf(tokenId), tom, "Buy Success");
         assertEq(usdt.balanceOf(tom), 0, "Pay Money Success");
         assertEq(usdt.balanceOf(alice), 1e18, "Make Money Success");

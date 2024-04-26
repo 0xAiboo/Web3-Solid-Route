@@ -89,7 +89,7 @@ abstract contract ERC721 is Context, ERC165, IERC721, IERC721Metadata, IERC721Er
         _requireOwned(tokenId);
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString()) : "";
+        return bytes(baseURI).length > 0 ? string.concat(baseURI, tokenId.toString(),".json") : "";
     }
 
     /**

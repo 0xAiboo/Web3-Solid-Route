@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.25;
+
 import "./Base20Token.sol";
 import "./Base721Token.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./interface/TokensReceive.sol";
-
-contract NFTMarket is TokensReceive {
+import "./interface/INFTMarket.sol";
+contract NFTMarket is TokensReceive, INFTMarket {
     Base20Token tokenContract;
     Base721Token NFTContract;
     struct BuyNft {
@@ -27,6 +28,7 @@ contract NFTMarket is TokensReceive {
         NFTContract.safeTransferFrom(msg.sender, address(this), tokenId);
         marketList[contractAddress][tokenId].owner = msg.sender;
         marketList[contractAddress][tokenId].listPrice = listPric;
+        emit listOrder(msg.sender, contractAddress, tokenId, listPric);
     }
 
     function buyNFT(
@@ -34,12 +36,13 @@ contract NFTMarket is TokensReceive {
         uint256 tokenId,
         address payErc20Contract
     ) public {
+        uint256 buyPrice = listPrice(contractAddress, tokenId);
         tokenContract = Base20Token(payErc20Contract);
         require(
             tokenContract.transferFrom(
                 msg.sender,
                 marketList[contractAddress][tokenId].owner,
-                marketList[contractAddress][tokenId].listPrice
+                buyPrice
             ),
             "Money Transfer fail"
         );
@@ -47,6 +50,7 @@ contract NFTMarket is TokensReceive {
         // marketList[contractAddress][tokenId].owner = address(0);
         // marketList[contractAddress][tokenId].listPrice = 0;
         _transfer(address(this), contractAddress, tokenId, msg.sender);
+        emit buyOrder(msg.sender, contractAddress, tokenId, buyPrice);
     }
 
     function listPrice(
@@ -112,10 +116,7 @@ contract NFTMarket is TokensReceive {
         );
         require(transferSuccess, "tansfer fail");
         tokenContract = Base20Token(msg.sender);
-        tokenContract.transfer(
-            owner,
-            _value
-        );
+        tokenContract.transfer(owner, _value);
 
         return transferSuccess;
     }
