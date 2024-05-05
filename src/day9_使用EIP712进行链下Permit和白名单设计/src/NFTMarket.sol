@@ -125,7 +125,7 @@ contract NFTMarket is TokensReceive, INFTMarket {
             "Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)"
         );
 
-    function permitBuy(
+    function isWhite(
         address contractAddress,
         uint256 tokenId,
         uint256 deadline,
@@ -133,9 +133,9 @@ contract NFTMarket is TokensReceive, INFTMarket {
         bytes32 r,
         bytes32 s
     ) external {
-        _permitBuy(contractAddress, tokenId, deadline, v, r, s);
+        _isWhite(contractAddress, tokenId, deadline, v, r, s);
     }
-    function _permitBuy(
+    function _isWhite(
         address contractAddress,
         uint256 tokenId,
         uint256 deadline,
@@ -172,7 +172,11 @@ contract NFTMarket is TokensReceive, INFTMarket {
             )
         );
         bytes32 hash = keccak256(
-            abi.encodePacked("\x19\x01", eip712DomainHash, hashStruct)
+            abi.encodePacked(
+                "\x19\x01",
+                NFTContract.DOMAIN_SEPARATOR(),
+                hashStruct
+            )
         );
         // console.log("=============market=================");
         // console.logBytes32(hash);
@@ -190,8 +194,93 @@ contract NFTMarket is TokensReceive, INFTMarket {
             block.timestamp < deadline,
             "MyFunction: signed transaction expired"
         );
-        NFTContract.mint(msg.sender);
+        // NFTContract.mint(msg.sender);
     }
+    function permitBuy(
+        address nftAddress,
+        uint256 tokenId,
+        address erc20Address,
+        address owner,
+        address spender,
+        uint256 _value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        _permitBuy(
+            nftAddress,
+            tokenId,
+            erc20Address,
+            owner,
+            spender,
+            _value,
+            deadline,
+            v,
+            r,
+            s
+        );
+    }
+    function _permitBuy(
+        address nftAddress,
+        uint256 tokenId,
+        address erc20Address,
+        address owner,
+        address spender,
+        uint256 _value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal {
+        Base20Token(erc20Address).permit(
+            owner,
+            spender,
+            _value,
+            deadline,
+            v,
+            r,
+            s
+        );
+        buyNFT(nftAddress, tokenId, erc20Address);
+    }
+    function permitList(
+        address contractAddress,
+        uint256 price,
+        uint256 tokenId,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        _permitList(contractAddress, price, tokenId, deadline, v, r, s);
+    }
+
+    function _permitList(
+        address contractAddress,
+        uint256 price,
+        uint256 tokenId,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) internal {
+        // NFTContract = new NFTContract()
+        NFTContract = Base721Token(contractAddress);
+        NFTContract.permit(
+            msg.sender,
+            address(this),
+            tokenId,
+            deadline,
+            v,
+            r,
+            s
+        );
+        // NFTContract._safeTransfer(msg.sender, to, tokenId);
+        // NFTContract.safeTransferFrom(msg.sender, address(this), tokenId);
+        list(contractAddress, tokenId, price);
+    }
+
     function onERC721Received(
         address,
         address,
