@@ -13,6 +13,8 @@ contract CounterScript is Script {
         address deployer = makeAddr(
             "0xf7F8d93ad9C069e665CC7dC9a33F506331CCD3Dc"
         );
+        new NFTMarket();
+        new Base20Token("USDA", "Ather", 1e18);
         Base721Token nft = new Base721Token(
             "Azuki",
             "A",
@@ -20,8 +22,6 @@ contract CounterScript is Script {
         );
         nft.mint(deployer, 1);
         nft.mint(deployer, 2);
-        new Base20Token("USDA", "Ather", 1e18);
-        new NFTMarket();
 
         // vm.stopBroadcast();
     }

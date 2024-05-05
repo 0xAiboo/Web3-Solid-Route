@@ -18,7 +18,6 @@ contract NFTMarket is TokensReceive, INFTMarket {
         uint256 listPrice;
     }
     mapping(address => mapping(uint256 => listUser)) private marketList;
-
     function list(
         address contractAddress,
         uint256 tokenId,
