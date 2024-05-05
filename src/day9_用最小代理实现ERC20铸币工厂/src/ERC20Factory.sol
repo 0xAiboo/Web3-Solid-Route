@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.25;
+import {console} from "forge-std/Test.sol";
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Base20Implementation.sol";
 import "./interface/IERC20Factory.sol";
 import "./interface/IBase20Implementation.sol";
 contract ERC20Factory is Ownable, IERC20Factory {
@@ -26,28 +28,44 @@ contract ERC20Factory is Ownable, IERC20Factory {
         uint totalSupply,
         uint perMint,
         uint price
-    ) external {
+    ) external returns (address) {
         require(
-            erc20Implementation == address(0),
+            erc20Implementation != address(0),
             "Implementation address is null"
         );
-        _clone(symbol, totalSupply, perMint, price);
+        return _clone(symbol, totalSupply, perMint, price);
     }
-    function mintInscription(address tokenAddr) external payable {}
-
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+    function mintInscription(address tokenAddr) external payable {
+        Base20Implementation b2i = Base20Implementation(tokenAddr);
+        uint256 price = b2i.priceOfOne();
+        uint256 erc20Price = price * ((100 - ratio) / 100);
+        require(msg.value == price, "please pay money");
+        b2i.mimt{value: erc20Price}(msg.sender);
+        // payable(tokenAddr).transfer(price * ((100 - ratio) / 100));
+    }
+    // rereceive() external payable {
+    //     // bankBook[msg.sender] += msg.value;
+    //     // refeshRank();
+    //     // emit Deposit(msg.sender, msg.value, address(this).balance);
+    // }
     function _clone(
         string calldata _symbol,
         uint _totalSupply,
         uint _perMint,
         uint _price
-    ) internal {
+    ) internal returns (address) {
         address newAddress = _create(erc20Implementation);
-        IBase20Implementation(newAddress).initialize(
+        Base20Implementation(newAddress).initialize(
             _symbol,
             _totalSupply,
             _perMint,
-            _price
+            _price,
+            address(this)
         );
+        return newAddress;
     }
     function _create(
         address _implementation

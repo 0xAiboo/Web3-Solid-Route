@@ -13,6 +13,6 @@ interface IERC20Factory {
         uint totalSupply,
         uint perMint,
         uint price
-    ) external;
+    ) external returns (address);
     function mintInscription(address tokenAddr) external payable;
 }
