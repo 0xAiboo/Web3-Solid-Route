@@ -125,16 +125,16 @@ contract NFTMarket is TokensReceive, INFTMarket {
             "Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)"
         );
 
-    function isWhite(
-        address contractAddress,
-        uint256 tokenId,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external {
-        _isWhite(contractAddress, tokenId, deadline, v, r, s);
-    }
+    // function isWhite(
+    //     address contractAddress,
+    //     uint256 tokenId,
+    //     uint256 deadline,
+    //     uint8 v,
+    //     bytes32 r,
+    //     bytes32 s
+    // ) external {
+    //     _isWhite(contractAddress, tokenId, deadline, v, r, s);
+    // }
     function _isWhite(
         address contractAddress,
         uint256 tokenId,
@@ -196,6 +196,11 @@ contract NFTMarket is TokensReceive, INFTMarket {
         );
         // NFTContract.mint(msg.sender);
     }
+    struct SignModal {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
     function permitBuy(
         address nftAddress,
         uint256 tokenId,
@@ -204,10 +209,10 @@ contract NFTMarket is TokensReceive, INFTMarket {
         address spender,
         uint256 _value,
         uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
+        SignModal memory sign2,
+        SignModal memory sign1
     ) external {
+        _isWhite(nftAddress, tokenId, deadline, sign1.v, sign1.r, sign1.s);
         _permitBuy(
             nftAddress,
             tokenId,
@@ -216,9 +221,9 @@ contract NFTMarket is TokensReceive, INFTMarket {
             spender,
             _value,
             deadline,
-            v,
-            r,
-            s
+            sign2.v,
+            sign2.r,
+            sign2.s
         );
     }
     function _permitBuy(

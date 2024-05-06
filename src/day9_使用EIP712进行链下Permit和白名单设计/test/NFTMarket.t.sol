@@ -12,7 +12,11 @@ contract NFTMarketTest is Test {
     Base20Token usdt;
     NFTMarket market;
     SigUtils internal sigUtils;
-
+    struct SignModal {
+        uint8 v;
+        bytes32 r;
+        bytes32 s;
+    }
     // 721 Owner
     uint256 ownerPrivateKey = 0xA11CE;
     address alice = vm.addr(ownerPrivateKey);
@@ -85,11 +89,13 @@ contract NFTMarketTest is Test {
     }
     function buyPermit(uint256 tokenId, uint256 price) public {
         //白名单验证通过
-        whiteSign(tokenId);
+        // whiteSign(tokenId);
         buySign(tokenId, price);
     }
 
-    function whiteSign(uint256 tokenId) public {
+    function whiteSign(
+        uint256 tokenId
+    ) public returns (uint8 v1, bytes32 r1, bytes32 s1) {
         sigUtils = new SigUtils(nft.DOMAIN_SEPARATOR());
 
         vm.startPrank(tom);
@@ -102,10 +108,17 @@ contract NFTMarketTest is Test {
         });
         bytes32 digest = sigUtils.getTypedDataHash(permit);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
-        market.isWhite(address(nft), tokenId, 1 days, v, r, s);
+        return (v, r, s);
+        // market.isWhite(address(nft), tokenId, 1 days, v, r, s);
         // assertEq(nft.ownerOf(tokenId), address(tom), "You dont in whiteList");
     }
+
     function buySign(uint256 tokenId, uint256 _value) public {
+        (uint8 v1, bytes32 r1, bytes32 s1) = whiteSign(tokenId);
+        console.log(v1);
+        console.logBytes32(r1);
+        console.logBytes32(s1);
+        NFTMarket.SignModal memory sign1 = NFTMarket.SignModal(v1, r1, s1);
         sigUtils = new SigUtils(usdt.DOMAIN_SEPARATOR());
 
         SigUtils.Permit memory permit = SigUtils.Permit({
@@ -118,6 +131,8 @@ contract NFTMarketTest is Test {
         bytes32 digest = sigUtils.getTypedDataHash(permit);
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(buyerPrivateKey, digest);
+        NFTMarket.SignModal memory sign2 = NFTMarket.SignModal(v, r, s);
+
         uint256 tomBalance = usdt.balanceOf(tom);
         uint256 aliceBalance = usdt.balanceOf(alice);
         vm.startPrank(tom);
@@ -129,9 +144,8 @@ contract NFTMarketTest is Test {
             permit.spender,
             permit.value,
             permit.deadline,
-            v,
-            r,
-            s
+            sign2,
+            sign1
         );
         assertEq(nft.ownerOf(tokenId), address(tom), "buy failed");
         assertEq(
