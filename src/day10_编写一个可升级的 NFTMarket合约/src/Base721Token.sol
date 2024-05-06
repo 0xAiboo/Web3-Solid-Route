@@ -67,7 +67,8 @@ contract Base721Token is ERC721, Ownable, EIP712 {
         }
 
         // _approve(spender, value, owner);
-        setApprovalForAll(spender, true);
+        // setApprovalForAll(spender, true);
+        _setApprovalForAll(owner, spender, true);
     }
     // function signAddress(
     //     address userAddress

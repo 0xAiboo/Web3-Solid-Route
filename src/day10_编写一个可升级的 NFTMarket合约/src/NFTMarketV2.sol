@@ -250,6 +250,8 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
         buyNFT(nftAddress, tokenId, erc20Address);
     }
     function permitList(
+        address owner,
+        address spender,
         address contractAddress,
         uint256 price,
         uint256 tokenId,
@@ -258,10 +260,22 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
         bytes32 r,
         bytes32 s
     ) external {
-        _permitList(contractAddress, price, tokenId, deadline, v, r, s);
+        _permitList(
+            owner,
+            spender,
+            contractAddress,
+            price,
+            tokenId,
+            deadline,
+            v,
+            r,
+            s
+        );
     }
 
     function _permitList(
+        address owner,
+        address spender,
         address contractAddress,
         uint256 price,
         uint256 tokenId,
@@ -272,15 +286,7 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
     ) internal {
         // NFTContract = new NFTContract()
         NFTContract = Base721Token(contractAddress);
-        NFTContract.permit(
-            msg.sender,
-            address(this),
-            tokenId,
-            deadline,
-            v,
-            r,
-            s
-        );
+        NFTContract.permit(owner, spender, tokenId, deadline, v, r, s);
         // NFTContract._safeTransfer(msg.sender, to, tokenId);
         // NFTContract.safeTransferFrom(msg.sender, address(this), tokenId);
         list(contractAddress, tokenId, price);

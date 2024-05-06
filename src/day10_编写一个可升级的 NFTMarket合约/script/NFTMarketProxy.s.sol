@@ -9,6 +9,5 @@ contract NFTMarketProxyScript is Script {
     function run() public {
         vm.broadcast();
         NFTMarketProxy nftMarketProxy = new NFTMarketProxy();
-        console.log(address(nftMarketProxy));
     }
 }
