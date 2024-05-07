@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts (last updated v5.0.0) (proxy/transparent/TransparentUpgradeableProxy.sol)
 
 pragma solidity ^0.8.20;
-
+import {console} from "forge-std/Test.sol";
 import {ERC1967Utils} from "../ERC1967/ERC1967Utils.sol";
 import {ERC1967Proxy} from "../ERC1967/ERC1967Proxy.sol";
 import {IERC1967} from "../../interfaces/IERC1967.sol";
