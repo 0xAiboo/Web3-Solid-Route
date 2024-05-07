@@ -8,8 +8,6 @@ import {Upgrades, Options} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 contract NFTMarketUpgradeV1Script is Script{
     function run() public {
         vm.startBroadcast(msg.sender);
-
-        // vm.broadcast();
         Options memory opts;
         //   opts.unsafeSkipAllChecks = true;
         opts.unsafeSkipAllChecks = true;
