@@ -10,3 +10,6 @@
 [submodule "lib/openzeppelin-contracts-upgradeable"]
 	path = lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
+[submodule "src/day10_编写一个可升级的NFTMarket合约/lib/openzeppelin-foundry-upgrades"]
+	path = src/day10_编写一个可升级的NFTMarket合约/lib/openzeppelin-foundry-upgrades
+	url = https://github.com/OpenZeppelin/openzeppelin-foundry-upgrades
