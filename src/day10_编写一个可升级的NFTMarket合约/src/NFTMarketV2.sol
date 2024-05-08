@@ -6,10 +6,13 @@ import "./Base721Token.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./interface/TokensReceive.sol";
 import "./interface/INFTMarket.sol";
-contract NFTMarketV2 is TokensReceive, INFTMarket {
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
+    error ExpiredSignature(uint256 deadline);
+    error InvalidSigner(address signer, address owner);
     Base20Token tokenContract;
     Base721Token NFTContract;
-
+    string private constant name = "NFTMarket";
     struct BuyNft {
         address nftAdrees;
         uint256 nftTokenId;
@@ -19,6 +22,11 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
         uint256 listPrice;
     }
     mapping(address => mapping(uint256 => listUser)) private marketList;
+    function _DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+    constructor() EIP712(name, "1") {}
+
     function list(
         address contractAddress,
         uint256 tokenId,
@@ -122,19 +130,9 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
     }
     bytes32 private immutable _PERMIT_TYPEHASH =
         keccak256(
-            "Permit(address spender,uint256 tokenId,uint256 nonce,uint256 deadline)"
+            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
 
-    // function isWhite(
-    //     address contractAddress,
-    //     uint256 tokenId,
-    //     uint256 deadline,
-    //     uint8 v,
-    //     bytes32 r,
-    //     bytes32 s
-    // ) external {
-    //     _isWhite(contractAddress, tokenId, deadline, v, r, s);
-    // }
     function _isWhite(
         address contractAddress,
         uint256 tokenId,
@@ -143,20 +141,6 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
         bytes32 r,
         bytes32 s
     ) internal {
-        bytes32 eip712DomainHash = keccak256(
-            abi.encode(
-                keccak256(
-                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                ),
-                keccak256(bytes("Base721Token")),
-                keccak256(bytes("1")),
-                block.chainid,
-                address(this)
-            )
-        );
-
-        // console.log("some explanation: %s", eip712DomainHash);
-        // return eip712DomainHash;
         NFTContract = Base721Token(contractAddress);
         address owner = NFTContract.owner();
         bytes32 hashStruct = keccak256(
@@ -172,11 +156,7 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
             )
         );
         bytes32 hash = keccak256(
-            abi.encodePacked(
-                "\x19\x01",
-                NFTContract.DOMAIN_SEPARATOR(),
-                hashStruct
-            )
+            abi.encodePacked("\x19\x01", this._DOMAIN_SEPARATOR(), hashStruct)
         );
         // console.log("=============market=================");
         // console.logBytes32(hash);
@@ -286,12 +266,38 @@ contract NFTMarketV2 is TokensReceive, INFTMarket {
     ) internal {
         // NFTContract = new NFTContract()
         NFTContract = Base721Token(contractAddress);
-        NFTContract.permit(owner, spender, tokenId, deadline, v, r, s);
-        // NFTContract._safeTransfer(msg.sender, to, tokenId);
-        // NFTContract.safeTransferFrom(msg.sender, address(this), tokenId);
+        _permitVaild(owner, spender, tokenId, deadline, v, r, s);
         list(contractAddress, tokenId, price);
     }
-
+    function _permitVaild(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public virtual {
+        if (block.timestamp > deadline) {
+            revert ExpiredSignature(deadline);
+        }
+        bytes32 structHash = keccak256(
+            abi.encode(_PERMIT_TYPEHASH, owner, spender, value, value, deadline)
+        );
+        console.log("===============Market================");
+        console.logBytes32(_PERMIT_TYPEHASH);
+        console.logBytes32(this._DOMAIN_SEPARATOR());
+        console.logBytes32(structHash);
+        console.log(owner);
+        console.log(spender);
+        console.log(value);
+        console.log(deadline);
+        bytes32 hash = _hashTypedDataV4(structHash);
+        address signer = ECDSA.recover(hash, v, r, s);
+        if (signer != owner) {
+            revert InvalidSigner(signer, owner);
+        }
+    }
     function onERC721Received(
         address,
         address,

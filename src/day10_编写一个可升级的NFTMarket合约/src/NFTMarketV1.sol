@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 import "./Base20Token.sol";
 import "./Base721Token.sol";
+import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 
-contract NFTMarketV1 {
+contract NFTMarketV1 is EIP712 {
     ERC20 tokenContract;
     ERC721 NFTContract;
     struct listUser {
@@ -11,7 +12,8 @@ contract NFTMarketV1 {
         uint256 listPrice;
     }
     mapping(address => mapping(uint256 => listUser)) private marketList;
-
+    string private constant name = "NFTMarket";
+    constructor() EIP712(name, "1") {}
     function list(
         address contractAddress,
         uint256 tokenId,

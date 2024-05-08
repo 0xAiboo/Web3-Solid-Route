@@ -56,24 +56,27 @@ contract NFTMarketProxyTest is Test {
     }
 
     function deployV1() internal {
+        vm.startPrank(owner);
         Options memory opts;
         //   opts.unsafeSkipAllChecks = true;
         opts.unsafeSkipAllChecks = true;
         proxy = Upgrades.deployTransparentProxy(
             "NFTMarketV1.sol:NFTMarketV1",
-            alice, // INITIAL_OWNER_ADDRESS_FOR_PROXY_ADMIN,
+            owner, // INITIAL_OWNER_ADDRESS_FOR_PROXY_ADMIN,
             "", // abi.encodeCall(MyContract.initialize, ("arguments for the initialize function")
             opts
         );
+        vm.stopPrank();
     }
     function upgradeableV2() internal {
-        vm.startPrank(alice);
+        vm.startPrank(owner);
         Options memory opts;
         opts.unsafeSkipAllChecks = true;
         opts.referenceContract = "NFTMarketV1.sol:NFTMarketV1";
 
         // proxy: 0xE51D179eD956500AC8E0dd535DDaf48775aD7832
         Upgrades.upgradeProxy(proxy, "NFTMarketV2.sol:NFTMarketV2", "", opts);
+        vm.stopPrank();
     }
     function List(uint256 tokenId, uint256 price) internal {
         vm.startPrank(alice);
@@ -112,6 +115,7 @@ contract NFTMarketProxyTest is Test {
         assertEq(_user, alice, "expect listPrice error");
     }
     function eqPriceOwnerV2(uint256 tokenId, uint256 price) internal {
+        vm.startPrank(alice);
         (, bytes memory _data) = address(proxy).call(
             abi.encodeWithSignature(
                 "listPrice(address,uint256)",
@@ -134,7 +138,11 @@ contract NFTMarketProxyTest is Test {
         assertEq(_user, alice, "expect listPrice error");
     }
     function list_permit(uint256 tokenId, uint256 price) internal {
-        sigUtils = new SigUtils(token721.DOMAIN_SEPARATOR());
+        (, bytes memory _domain) = address(proxy).call(
+            abi.encodeWithSignature("_DOMAIN_SEPARATOR()")
+        );
+        bytes32 _domain32 = abi.decode(_domain, (bytes32));
+        sigUtils = new SigUtils(_domain32);
         vm.startPrank(alice);
         token721.mint(alice);
         token721.mint(alice);
@@ -147,14 +155,10 @@ contract NFTMarketProxyTest is Test {
             deadline: 1 days
         });
         bytes32 digest = sigUtils.getTypedDataHash(permit);
-        // console.log("==============================");
-        // console.logBytes32(digest);
-        // console.log(nft.owner());
-        // console.log(msg.sender);
-        // console.log(tokenId);
-        // console.log(1 days);
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
 
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
+        console.log("=====================================================");
+        token721.setApprovalForAll(address(proxy), true);
         (bool ss, ) = address(proxy).call(
             abi.encodeWithSignature(
                 "permitList(address,address,address,uint256,uint256,uint256,uint8,bytes32,bytes32)",

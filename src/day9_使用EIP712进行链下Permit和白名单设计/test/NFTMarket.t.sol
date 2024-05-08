@@ -28,7 +28,6 @@ contract NFTMarketTest is Test {
         vm.startPrank(alice);
         market = new NFTMarket();
         nft = new Base721Token("AA", "A", "");
-        nft.setNFTMartket(address(market));
         usdt = new Base20Token("Teg", "USDT", 1e18);
         usdt.transfer(tom, 1e18);
 
@@ -47,7 +46,7 @@ contract NFTMarketTest is Test {
         uint256 tokenId,
         uint256 price
     ) public {
-        sigUtils = new SigUtils(nft.DOMAIN_SEPARATOR());
+        sigUtils = new SigUtils(market._DOMAIN_SEPARATOR());
 
         vm.startPrank(alice);
         SigUtils.Permit memory permit = SigUtils.Permit({
@@ -58,14 +57,38 @@ contract NFTMarketTest is Test {
             deadline: 1 days
         });
         bytes32 digest = sigUtils.getTypedDataHash(permit);
-        // console.log("==============================");
-        // console.logBytes32(digest);
-        // console.log(nft.owner());
-        // console.log(msg.sender);
-        // console.log(tokenId);
-        // console.log(1 days);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
-        market.permitList(contractAddress, price, tokenId, 1 days, v, r, s);
+        /**
+         *  预期错误：没有授权
+         */
+        vm.expectRevert(
+            abi.encodeWithSignature(
+                "ERC721InsufficientApproval(address,uint256)",
+                address(market),
+                tokenId
+            )
+        );
+        market.permitList(
+            address(alice),
+            contractAddress,
+            price,
+            tokenId,
+            1 days,
+            v,
+            r,
+            s
+        );
+        nft.setApprovalForAll(address(market), true);
+        market.permitList(
+            address(alice),
+            contractAddress,
+            price,
+            tokenId,
+            1 days,
+            v,
+            r,
+            s
+        );
         assertEq(
             market.listPrice(contractAddress, tokenId),
             price,
@@ -96,7 +119,7 @@ contract NFTMarketTest is Test {
     function whiteSign(
         uint256 tokenId
     ) public returns (uint8 v1, bytes32 r1, bytes32 s1) {
-        sigUtils = new SigUtils(nft.DOMAIN_SEPARATOR());
+        sigUtils = new SigUtils(market._DOMAIN_SEPARATOR());
 
         vm.startPrank(tom);
         SigUtils.Permit memory permit = SigUtils.Permit({

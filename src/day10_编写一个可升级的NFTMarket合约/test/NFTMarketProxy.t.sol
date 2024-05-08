@@ -137,7 +137,7 @@ contract NFTMarketProxyTest is Test {
         uint256 tokenId,
         uint256 price
     ) public {
-        sigUtils = new SigUtils(token721.DOMAIN_SEPARATOR());
+        sigUtils = new SigUtils(nft2._DOMAIN_SEPARATOR());
 
         vm.startPrank(alice);
 
