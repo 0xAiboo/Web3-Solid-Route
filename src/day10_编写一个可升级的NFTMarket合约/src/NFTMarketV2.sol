@@ -132,6 +132,10 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         keccak256(
             "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
+    bytes32 private immutable _WHITE_TYPEHASH =
+        keccak256(
+            "White(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+        );
 
     function _isWhite(
         address contractAddress,
@@ -145,9 +149,7 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         address owner = NFTContract.owner();
         bytes32 hashStruct = keccak256(
             abi.encode(
-                keccak256(
-                    "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-                ),
+                _WHITE_TYPEHASH,
                 owner,
                 msg.sender,
                 tokenId,
