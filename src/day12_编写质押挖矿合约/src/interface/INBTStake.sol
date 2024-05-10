@@ -10,6 +10,7 @@ interface INBTStake {
     error ErrorAmountThanZero(address user, uint256 amount);
     error ErrorAmountEnghout(address user, uint256 amount);
 
+    
     event StakeOrder(address user, uint256 amount, uint256 total);
     event unStakeOrder(address user, uint256 amount, uint256 total);
     event claimOrder(address user, uint256 amount, uint256 total);
