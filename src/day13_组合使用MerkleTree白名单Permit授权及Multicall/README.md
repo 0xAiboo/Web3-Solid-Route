@@ -18,9 +18,17 @@
 
 ## ‼️ 测试合约脚本
 [测试合约脚本](test/AirdopMerkleNFTMarket.t.sol)
+
+## ‼️ multicall 调用封装
+[multicall](src/AirdopMerkleNFTMarket.sol)
+![multicall 调用封装](<img/Screenshot 2024-05-11 at 02.39.45.png>)
+
+## ‼️ Merkel 树的构建
+[Merkel 树的构建](js/index.js)
+![Merkel 树的构建](<img/Screenshot 2024-05-11 at 02.40.03.png>)
+
 ---
 ## ‼️ 测试合约日志截图
-
 
 ### 测试multicall
 #### ‼️(测试逻辑使用alice进行挂单，buyer调用multicall实现一个交易，完成permitPrePay以及claimNFT)
