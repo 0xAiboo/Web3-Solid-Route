@@ -9,25 +9,6 @@ contract TokenBank is TokensReceive {
         public
         returns (bool)
     {
-        // (bool success, bytes memory data) = contractAddress.call(
-        //     abi.encodeWithSignature("balanceOf(address)", msg.sender)
-        // );
-        // uint256 result = abi.decode(data, (uint256));
-        // require(result >= _value, "Insufficient account balance");
-        // require(success, "Balance query failed");
-
-        // (bool successAllowance, bytes memory allowanceData) = contractAddress
-        //     .call(
-        //         abi.encodeWithSignature(
-        //             "allowance(address,address)",
-        //             msg.sender,
-        //             this
-        //         )
-        //     );
-        // uint256 allowance = abi.decode(allowanceData, (uint256));
-        // require(allowance >= _value, "Insufficient account allowance");
-        // require(successAllowance, "Allowance query failed");
-
         (bool successTransferForm, ) = contractAddress.call(
             abi.encodeWithSignature(
                 "transferFrom(address,address,uint256)",
