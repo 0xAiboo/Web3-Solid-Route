@@ -136,7 +136,7 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         keccak256(
             "White(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
         );
-
+ 
     function _isWhite(
         address contractAddress,
         uint256 tokenId,
