@@ -6,8 +6,10 @@ import "./Base721Token.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "./interface/TokensReceive.sol";
 import "./interface/INFTMarket.sol";
-import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
-contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
+// import "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
+// import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/cryptography/EIP712Upgradeable.sol";
+contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712Upgradeable {
     error ExpiredSignature(uint256 deadline);
     error InvalidSigner(address signer, address owner);
     Base20Token tokenContract;
@@ -21,11 +23,17 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         address owner;
         uint256 listPrice;
     }
+    constructor() {
+        _disableInitializers();
+    }
+    function initializers() public initializer {
+        console.log(111);
+        __EIP712_init(name, "1");
+    }
     mapping(address => mapping(uint256 => listUser)) private marketList;
     function _DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
     }
-    constructor() EIP712(name, "1") {}
 
     function list(
         address contractAddress,
@@ -134,9 +142,9 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         );
     bytes32 private immutable _WHITE_TYPEHASH =
         keccak256(
-            "White(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
+            "White(address owner,address spender,uint256 value,uint256 deadline)"
         );
- 
+
     function _isWhite(
         address contractAddress,
         uint256 tokenId,
@@ -148,14 +156,7 @@ contract NFTMarketV2 is TokensReceive, INFTMarket, EIP712 {
         NFTContract = Base721Token(contractAddress);
         address owner = NFTContract.owner();
         bytes32 hashStruct = keccak256(
-            abi.encode(
-                _WHITE_TYPEHASH,
-                owner,
-                msg.sender,
-                tokenId,
-                tokenId,
-                deadline
-            )
+            abi.encode(_WHITE_TYPEHASH, owner, msg.sender, tokenId, deadline)
         );
         bytes32 hash = keccak256(
             abi.encodePacked("\x19\x01", this._DOMAIN_SEPARATOR(), hashStruct)

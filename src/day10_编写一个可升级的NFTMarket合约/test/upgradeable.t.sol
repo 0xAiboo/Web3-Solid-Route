@@ -73,9 +73,16 @@ contract NFTMarketProxyTest is Test {
         Options memory opts;
         opts.unsafeSkipAllChecks = true;
         opts.referenceContract = "NFTMarketV1.sol:NFTMarketV1";
-
         // proxy: 0xE51D179eD956500AC8E0dd535DDaf48775aD7832
-        Upgrades.upgradeProxy(proxy, "NFTMarketV2.sol:NFTMarketV2", "", opts);
+       Upgrades.upgradeProxy(
+            proxy,
+            "NFTMarketV2.sol:NFTMarketV2",
+            // "NFTMarketV2.initializers",
+            abi.encodeWithSignature("initializers()"),
+            // "NFTMarketV2.initializers",
+            // abi.encodeCall(NFTMarketV2.initializers),
+            opts
+        );
         vm.stopPrank();
     }
     function List(uint256 tokenId, uint256 price) internal {
