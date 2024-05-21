@@ -4,33 +4,19 @@
 </p>
 
 ---
-# 实现一个 AirdopMerkleNFTMarket 合约(假定 Token、NFT、AirdopMerkleNFTMarket 都是同一个开发者开发)，功能如下：
-
-## 1.基于 Merkel 树验证某用户是否在白名单中
-## 2.在白名单中的用户可以使用上架（和之前的上架逻辑一致）指定价格的优惠 50% 的Token 来购买 NFT， Token 需支持 permit 授权。
-
-# 要求使用 multicall( delegateCall 方式) 一次性调用两个方法：
-
-## 1.permitPrePay() : 调用token的 permit 进行授权
-## 2.claimNFT() : 通过默克尔树验证白名单，并利用 permitPrePay 的授权，转入 token 转出 NFT 。
-## 请贴出你的代码 github ，代码需包含合约，multicall 调用封装，Merkel 树的构建以及测试用例。
+# 编写 MyDex 合约，任何人都可以通过 sellETH 方法出售ETH兑换成 USDT，也可以通过 buyETH 将 USDT 兑换成 ETH。
+## 需要提交 MyDex 合约源代码，下方是MyDex接口规范。
 ---
 
 ## ‼️ 测试合约脚本
-[测试合约脚本](test/AirdopMerkleNFTMarket.t.sol)
-
-## ‼️ multicall 调用封装
-[multicall](src/AirdopMerkleNFTMarket.sol)
-![multicall 调用封装](<img/Screenshot 2024-05-11 at 02.39.45.png>)
-
-## ‼️ Merkel 树的构建
-[Merkel 树的构建](js/index.js)
-![Merkel 树的构建](<img/Screenshot 2024-05-11 at 02.40.03.png>)
+[text](test/Dex.t.sol)
 
 ---
 ## ‼️ 测试合约日志截图
+![alt text](img/testBuyETH1.png)
+![alt text](img/testBuyEth2.png)
+![alt text](img/testBuyEth3.png)
 
-### 测试multicall
-#### ‼️(测试逻辑使用alice进行挂单，buyer调用multicall实现一个交易，完成permitPrePay以及claimNFT)
-![测试multicall](img/测试.png)
-
+![alt text](img/sellEth1.png)
+![alt text](img/sellEth2.png)
+![alt text](img/sellETH3.png)
