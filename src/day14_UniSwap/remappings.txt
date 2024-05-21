@@ -3,5 +3,5 @@ ds-test/=lib/openzeppelin-contracts/lib/forge-std/lib/ds-test/src/
 erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/
 forge-std/=lib/forge-std/src/
 openzeppelin-contracts/=lib/openzeppelin-contracts/
-@uniswap/v2-core/contracts/=core/
+@uniswap/v2-core/contracts/=contracts/v2-core/
 @uniswap/lib/=lib/uniswap/lib/

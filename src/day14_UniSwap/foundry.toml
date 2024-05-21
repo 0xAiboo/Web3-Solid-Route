@@ -4,7 +4,7 @@ out = "out"
 libs = ["lib"]
 
 
-#solc="0.8.25"
+solc="0.8.25"
 #solc=["0.8.25","0.5.16"]
 [fmt]
 #line_length = 120
